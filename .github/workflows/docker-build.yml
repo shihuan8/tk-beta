@@ -315,6 +315,9 @@ jobs:
           COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an")
           COMMIT_DATE=$(git log -1 --pretty=format:"%ai")
 
+          # Recreate release when a tag is force-updated.
+          gh release delete "${VERSION}" --yes --cleanup-tag=false 2>/dev/null || true
+
           # 创建 release
           gh release create "${VERSION}" \
             --title "Release ${VERSION}" \
