@@ -259,7 +259,18 @@ export default function H5Layout({ children }: { children: React.ReactNode }) {
 
       <Modal isOpen={moreOpen} placement="bottom" size="full" onOpenChange={setMoreOpen}>
         <ModalContent>
-          <ModalHeader>更多功能</ModalHeader>
+          <ModalHeader>
+            <div className="flex w-full items-center justify-between">
+              <span>更多功能</span>
+              <button
+                className="rounded-full px-3 py-1 text-sm font-medium text-default-500 hover:bg-default-100 hover:text-foreground"
+                type="button"
+                onClick={() => setMoreOpen(false)}
+              >
+                关闭
+              </button>
+            </div>
+          </ModalHeader>
           <ModalBody className="pb-[calc(1rem+var(--safe-area-bottom))]">
             <div className="grid grid-cols-2 gap-3">
               {filteredMoreItems.map((item) => {

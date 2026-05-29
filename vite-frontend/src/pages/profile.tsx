@@ -282,7 +282,7 @@ export default function ProfilePage() {
         {/* 用户信息卡片 */}
         <Card className="border border-gray-200 dark:border-default-200 shadow-md hover:shadow-lg transition-shadow">
           <CardBody className="p-5">
-            <div className="flex items-center justify-center gap-4 md:justify-start md:pl-8">
+            <div className="flex items-center justify-start gap-4">
               <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
                 <svg
                   className="w-6 h-6 text-primary"
