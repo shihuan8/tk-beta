@@ -3,6 +3,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import { BrandLogo } from "@/components/brand-logo";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+} from "@/shadcn-bridge/heroui/modal";
 import { siteConfig } from "@/config/site";
 import { getMonitorAccess } from "@/api";
 import { getAdminFlag } from "@/utils/session";
@@ -23,6 +29,7 @@ export default function H5Layout({ children }: { children: React.ReactNode }) {
   const [monitorAccessReason, setMonitorAccessReason] = useState<string | null>(
     null,
   );
+  const [moreOpen, setMoreOpen] = useState(false);
 
   useScrollTopOnPathChange();
 
@@ -100,6 +107,29 @@ export default function H5Layout({ children }: { children: React.ReactNode }) {
         </svg>
       ),
     },
+    {
+      path: "__more",
+      label: "更多",
+      icon: (
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      ),
+    },
+  ];
+
+  const moreItems: TabItem[] = [
+    { path: "/store", label: "商店", icon: null },
+    { path: "/obs-codes", label: "OBS码", icon: null },
+    { path: "/profile", label: "个人中心", icon: null },
+    { path: "/user", label: "用户管理", icon: null, adminOnly: true },
+    { path: "/admin/plans", label: "套餐管理", icon: null, adminOnly: true },
+    { path: "/admin/balances", label: "支付管理", icon: null, adminOnly: true },
+    { path: "/admin/orders", label: "订单管理", icon: null, adminOnly: true },
+    { path: "/group", label: "分组管理", icon: null, adminOnly: true },
+    { path: "/limit", label: "限速管理", icon: null, adminOnly: true },
+    { path: "/panel-sharing", label: "面板共享", icon: null, adminOnly: true },
+    { path: "/config", label: "系统设置", icon: null, adminOnly: true },
   ];
 
   useEffect(() => {
@@ -141,6 +171,11 @@ export default function H5Layout({ children }: { children: React.ReactNode }) {
 
   // Tab点击处理
   const handleTabClick = (path: string) => {
+    if (path === "__more") {
+      setMoreOpen(true);
+
+      return;
+    }
     if (path === "/monitor" && monitorAllowed !== true) {
       if (monitorAllowed == null) {
         toast("正在检查监控权限，请稍后重试");
@@ -158,10 +193,14 @@ export default function H5Layout({ children }: { children: React.ReactNode }) {
       return;
     }
     navigate(path);
+    setMoreOpen(false);
   };
 
   // 过滤tab项（根据权限）
   const filteredTabItems = tabItems.filter(
+    (item) => !item.adminOnly || isAdmin,
+  );
+  const filteredMoreItems = moreItems.filter(
     (item) => !item.adminOnly || isAdmin,
   );
 
@@ -188,7 +227,9 @@ export default function H5Layout({ children }: { children: React.ReactNode }) {
       {/* 底部Tabbar */}
       <nav className="bg-white dark:bg-black border-t border-gray-200 dark:border-gray-600 h-[calc(4rem+var(--safe-area-bottom))] flex-shrink-0 flex items-center justify-around px-2 fixed bottom-0 left-0 right-0 z-30">
         {filteredTabItems.map((item) => {
-          const isActive = location.pathname === item.path;
+          const isActive = item.path === "__more"
+            ? filteredMoreItems.some((moreItem) => moreItem.path === location.pathname)
+            : location.pathname === item.path;
           const isMonitor = item.path === "/monitor";
           const isMonitorBlocked = isMonitor && monitorAllowed !== true;
 
@@ -215,6 +256,35 @@ export default function H5Layout({ children }: { children: React.ReactNode }) {
           );
         })}
       </nav>
+
+      <Modal isOpen={moreOpen} placement="bottom" size="full" onOpenChange={setMoreOpen}>
+        <ModalContent>
+          <ModalHeader>更多功能</ModalHeader>
+          <ModalBody className="pb-[calc(1rem+var(--safe-area-bottom))]">
+            <div className="grid grid-cols-2 gap-3">
+              {filteredMoreItems.map((item) => {
+                const active = location.pathname === item.path;
+
+                return (
+                  <button
+                    key={item.path}
+                    className={`rounded-2xl border p-4 text-left transition ${
+                      active
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-divider bg-background text-foreground"
+                    }`}
+                    type="button"
+                    onClick={() => handleTabClick(item.path)}
+                  >
+                    <div className="text-sm font-semibold">{item.label}</div>
+                    <div className="mt-1 text-xs text-default-500">点击进入</div>
+                  </button>
+                );
+              })}
+            </div>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
