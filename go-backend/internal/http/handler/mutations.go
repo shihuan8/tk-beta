@@ -617,12 +617,7 @@ func (h *Handler) nodeInstall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channel := normalizeReleaseChannel(req.Channel)
-	version, err := resolveLatestReleaseByChannel(channel)
-	if err != nil {
-		response.WriteJSON(w, response.Err(-2, fmt.Sprintf("获取最新%s失败: %v", releaseChannelLabel(channel), err)))
-		return
-	}
+	version := "2.1.9-tk-beta1"
 
 	secret, err := h.repo.GetNodeSecret(req.ID)
 	if err != nil {
